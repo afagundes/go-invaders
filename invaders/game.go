@@ -8,11 +8,11 @@ import (
 
 type Invaders struct {
 	*tl.Entity
-	Game   *tl.Game
-	Level  *tl.BaseLevel
-	Arena  *Arena
-	Hero   *Hero
-	Aliens [][]*Alien
+	Game         *tl.Game
+	Level        *tl.BaseLevel
+	Arena        *Arena
+	Hero         *Hero
+	AlienCluster *AlienCluster
 }
 
 func NewGame() *Invaders {
@@ -68,13 +68,14 @@ func (invaders *Invaders) initHero() {
 func (invaders *Invaders) initAliens() {
 	lineSize := 13
 
-	invaders.Aliens = append(invaders.Aliens, CreateAliensLine(Strong, lineSize))
-	invaders.Aliens = append(invaders.Aliens, CreateAliensLine(Medium, lineSize))
-	invaders.Aliens = append(invaders.Aliens, CreateAliensLine(Medium, lineSize))
-	invaders.Aliens = append(invaders.Aliens, CreateAliensLine(Basic, lineSize))
-	invaders.Aliens = append(invaders.Aliens, CreateAliensLine(Basic, lineSize))
+	invaders.AlienCluster = NewAlienCluster()
+	invaders.AlienCluster.Aliens = append(invaders.AlienCluster.Aliens, CreateAliensLine(Strong, lineSize))
+	invaders.AlienCluster.Aliens = append(invaders.AlienCluster.Aliens, CreateAliensLine(Medium, lineSize))
+	invaders.AlienCluster.Aliens = append(invaders.AlienCluster.Aliens, CreateAliensLine(Medium, lineSize))
+	invaders.AlienCluster.Aliens = append(invaders.AlienCluster.Aliens, CreateAliensLine(Basic, lineSize))
+	invaders.AlienCluster.Aliens = append(invaders.AlienCluster.Aliens, CreateAliensLine(Basic, lineSize))
 
-	SetPositionAndRenderAliens(invaders.Aliens, invaders.Level, invaders.Arena)
+	SetPositionAndRenderAliens(invaders.AlienCluster.Aliens, invaders.Level, invaders.Arena)
 }
 
 func (invaders *Invaders) updatePositions() {
@@ -82,7 +83,7 @@ func (invaders *Invaders) updatePositions() {
 
 	for {
 		invaders.updateLaserPositions()
-		invaders.updateAliensPositions()
+		invaders.updateAlienClusterPosition()
 
 		time.Sleep(refreshSpeed * time.Millisecond)
 	}
@@ -104,8 +105,8 @@ func (invaders *Invaders) updateLaserPositions() {
 	invaders.removeLasersAtEndOfArena()
 }
 
-func (invaders *Invaders) updateAliensPositions() {
-	utils.ShowAliensInfo(len(invaders.Aliens) * len(invaders.Aliens[0]))
+func (invaders *Invaders) updateAlienClusterPosition() {
+	invaders.AlienCluster.UpdateAliensPositions(invaders.Game.Screen().TimeDelta(), invaders.Arena)
 }
 
 func (invaders *Invaders) renderNewLaser(laser *Laser) {
