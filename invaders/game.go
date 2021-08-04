@@ -9,6 +9,7 @@ type Invaders struct {
 	Game               *tl.Game
 	Level              *tl.BaseLevel
 	Arena              *Arena
+	GameOverZone       *GameOverZone
 	Hud                *Hud
 	Hero               *Hero
 	AlienCluster       *AlienCluster
@@ -43,6 +44,7 @@ func (invaders *Invaders) initializeGame() {
 	invaders.initHud()
 	invaders.initHero()
 	invaders.initAliens()
+	invaders.initGameOverZone()
 	invaders.gameLoop()
 }
 
@@ -77,6 +79,11 @@ func (invaders *Invaders) initAliens() {
 	SetPositionAndRenderAliens(invaders.AlienCluster.Aliens, invaders.Level, invaders.Arena)
 }
 
+func (invaders *Invaders) initGameOverZone() {
+	invaders.GameOverZone = CreateGameOverZone(invaders.Arena, invaders.Hero)
+	invaders.Level.AddEntity(invaders.GameOverZone)
+}
+
 func (invaders *Invaders) gameLoop() {
 	for {
 		if invaders.Hero.IsDead() {
@@ -87,13 +94,17 @@ func (invaders *Invaders) gameLoop() {
 		invaders.updateLaserPositions()
 		invaders.RemoveDeadAliensAndIncrementScore()
 		invaders.updateAlienClusterPosition()
-
-		invaders.Hud.UpdateScore(invaders.Score)
+		invaders.updateScore()
+		invaders.verifyGameOverZone()
 
 		time.Sleep(invaders.RefreshSpeed * time.Millisecond)
 	}
 
 	ShowGameOverScreen(invaders)
+}
+
+func (invaders *Invaders) updateScore() {
+	invaders.Hud.UpdateScore(invaders.Score)
 }
 
 func (invaders *Invaders) updateAlienClusterPosition() {
@@ -172,4 +183,10 @@ func (invaders *Invaders) removeLaserOf(lasers []*Laser, arenaLimit int) []*Lase
 
 func (invaders *Invaders) addScore(points int) {
 	invaders.Score += points
+}
+
+func (invaders *Invaders) verifyGameOverZone() {
+	if invaders.GameOverZone.EnteredZone {
+		invaders.Hero.IsAlive = false
+	}
 }
