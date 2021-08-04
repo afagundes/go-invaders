@@ -2,12 +2,10 @@ package invaders
 
 import (
 	tl "github.com/JoelOtter/termloop"
-	"github.com/afagundes/go-invaders/invaders/utils"
 	"time"
 )
 
 type Invaders struct {
-	*tl.Entity
 	Game               *tl.Game
 	Level              *tl.BaseLevel
 	Arena              *Arena
@@ -22,7 +20,6 @@ type Invaders struct {
 
 func NewGame() *Invaders {
 	invaders := Invaders{
-		Entity:             tl.NewEntity(0, 0, 1, 1),
 		Game:               tl.NewGame(),
 		Level:              tl.NewBaseLevel(tl.Cell{Bg: tl.ColorBlack, Fg: tl.ColorWhite}),
 		AlienLaserVelocity: 0.12,
@@ -32,9 +29,6 @@ func NewGame() *Invaders {
 
 	invaders.Game.Screen().SetFps(60)
 	invaders.Game.Screen().SetLevel(invaders.Level)
-	invaders.Level.AddEntity(&invaders)
-
-	utils.InitInfo(invaders.Level)
 
 	return &invaders
 }
@@ -49,7 +43,7 @@ func (invaders *Invaders) initializeGame() {
 	invaders.initHud()
 	invaders.initHero()
 	invaders.initAliens()
-	invaders.updatePositions()
+	invaders.gameLoop()
 }
 
 func (invaders *Invaders) initArena() {
@@ -83,9 +77,10 @@ func (invaders *Invaders) initAliens() {
 	SetPositionAndRenderAliens(invaders.AlienCluster.Aliens, invaders.Level, invaders.Arena)
 }
 
-func (invaders *Invaders) updatePositions() {
+func (invaders *Invaders) gameLoop() {
 	for {
 		if invaders.Hero.IsDead() {
+			invaders.Hero.animateHeroDeath(invaders.Level)
 			break
 		}
 
@@ -97,6 +92,8 @@ func (invaders *Invaders) updatePositions() {
 
 		time.Sleep(invaders.RefreshSpeed * time.Millisecond)
 	}
+
+	ShowGameOverScreen(invaders)
 }
 
 func (invaders *Invaders) updateAlienClusterPosition() {
@@ -110,9 +107,6 @@ func (invaders *Invaders) RemoveDeadAliensAndIncrementScore() {
 }
 
 func (invaders *Invaders) updateLaserPositions() {
-	utils.ShowLasersInfo(len(invaders.Hero.Lasers))
-	utils.ShowAlienLasersInfo(len(invaders.AlienCluster.Lasers))
-
 	invaders.updateHeroLasers()
 	invaders.updateAlienLasers()
 	invaders.removeLasers()
@@ -166,7 +160,10 @@ func (invaders *Invaders) removeLaserOf(lasers []*Laser, arenaLimit int) []*Lase
 
 		if isEndOfArena || laser.HasHit {
 			invaders.Level.RemoveEntity(laser)
-			lasers = append(lasers[:index], lasers[index+1:]...)
+
+			if index < len(lasers) {
+				lasers = append(lasers[:index], lasers[index+1:]...)
+			}
 		}
 	}
 

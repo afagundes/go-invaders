@@ -8,7 +8,7 @@ import (
 type Arena struct {
 	*tl.Entity
 	Init int
-	End int
+	End  int
 }
 
 func newArena(screenWidth int, screenHeight int) *Arena {
@@ -18,8 +18,6 @@ func newArena(screenWidth int, screenHeight int) *Arena {
 	centerY := screenHeight/2 - height/2
 	init := centerX + 1
 	end := centerX + width
-
-	utils.ShowArenaInfo(screenWidth, screenHeight, width, height)
 
 	return &Arena{tl.NewEntityFromCanvas(centerX, centerY, createArena(width, height)), init, end}
 }

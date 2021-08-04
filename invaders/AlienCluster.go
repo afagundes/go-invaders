@@ -2,7 +2,6 @@ package invaders
 
 import (
 	tl "github.com/JoelOtter/termloop"
-	"github.com/afagundes/go-invaders/invaders/utils"
 	"math/rand"
 	"time"
 )
@@ -49,8 +48,6 @@ func NewAlienCluster() *AlienCluster {
 }
 
 func (alienCluster *AlienCluster) UpdateAliensPositions(timeDelta float64, arena *Arena) {
-	utils.ShowAliensInfo(len(alienCluster.Aliens) * len(alienCluster.Aliens[0]))
-
 	alienCluster.prepareMovement()
 
 	if alienCluster.canMove(timeDelta) {

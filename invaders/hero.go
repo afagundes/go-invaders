@@ -2,7 +2,7 @@ package invaders
 
 import (
 	tl "github.com/JoelOtter/termloop"
-	"github.com/afagundes/go-invaders/invaders/utils"
+	"time"
 )
 
 type Hero struct {
@@ -16,8 +16,6 @@ type Hero struct {
 func NewHero(arena *Arena) *Hero {
 	heroCanvas := CreateCanvas("invaders/files/hero.txt")
 	x, y := setHeroPosition(arena, heroCanvas)
-
-	utils.ShowHeroInfo(x, y)
 
 	return &Hero{Entity: tl.NewEntityFromCanvas(x, y, heroCanvas), Arena: arena, ReloadingTime: 15, IsAlive: true}
 }
@@ -55,8 +53,6 @@ func (hero *Hero) Tick(event tl.Event) {
 		case tl.KeySpace:
 			hero.shoot()
 		}
-
-		utils.ShowHeroInfo(x, y)
 	}
 }
 
@@ -97,4 +93,16 @@ func (hero *Hero) Collide(collision tl.Physical) {
 
 func (hero *Hero) IsDead() bool {
 	return hero.IsAlive == false
+}
+
+func (hero *Hero) animateHeroDeath(level *tl.BaseLevel) {
+	for i := 0; i < 6; i++ {
+		if i%2 == 0 {
+			level.RemoveEntity(hero)
+		} else {
+			level.AddEntity(hero)
+		}
+
+		time.Sleep(450 * time.Millisecond)
+	}
 }
