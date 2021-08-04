@@ -1,22 +1,25 @@
 package invaders
 
-import tl "github.com/JoelOtter/termloop"
+import (
+	tl "github.com/JoelOtter/termloop"
+)
 
 type Alien struct {
 	*tl.Entity
+	IsAlive bool
 }
 
 type AlienType string
 
 const (
-	Basic AlienType = "invaders/files/alien_basic.txt"
+	Basic  AlienType = "invaders/files/alien_basic.txt"
 	Medium AlienType = "invaders/files/alien_medium.txt"
 	Strong AlienType = "invaders/files/alien_strong.txt"
 )
 
 func NewAlien(alienType AlienType) *Alien {
 	canvas := CreateCanvas(string(alienType))
-	return &Alien{tl.NewEntityFromCanvas(0, 0, canvas)}
+	return &Alien{Entity: tl.NewEntityFromCanvas(0, 0, canvas), IsAlive: true}
 }
 
 func CreateAliensLine(alienType AlienType, lineSize int) []*Alien {
@@ -58,4 +61,11 @@ func calcInitialPositionAndSpace(aliens [][]*Alien, arena *Arena) (int, int, int
 	x := arenaX + arenaW/2 - totalWidth/2
 
 	return x, arenaY, space
+}
+
+func (alien *Alien) Collide(collision tl.Physical) {
+	if _, ok := collision.(*Laser); ok {
+		alien.IsAlive = false
+		collision.(*Laser).HasHit = true
+	}
 }

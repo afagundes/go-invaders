@@ -102,11 +102,22 @@ func (invaders *Invaders) updateLaserPositions() {
 		laser.SetPosition(x, y-1)
 	}
 
-	invaders.removeLasersAtEndOfArena()
+	invaders.removeLasers()
 }
 
 func (invaders *Invaders) updateAlienClusterPosition() {
+	invaders.removeDeadAliens()
 	invaders.AlienCluster.UpdateAliensPositions(invaders.Game.Screen().TimeDelta(), invaders.Arena)
+}
+
+func (invaders *Invaders) removeDeadAliens() {
+	for _, alienRow := range invaders.AlienCluster.Aliens {
+		for _, alien := range alienRow {
+			if alien.IsAlive == false {
+				invaders.Level.RemoveEntity(alien)
+			}
+		}
+	}
 }
 
 func (invaders *Invaders) renderNewLaser(laser *Laser) {
@@ -114,14 +125,14 @@ func (invaders *Invaders) renderNewLaser(laser *Laser) {
 	invaders.Level.AddEntity(laser)
 }
 
-func (invaders *Invaders) removeLasersAtEndOfArena() {
+func (invaders *Invaders) removeLasers() {
 	_, arenaY := invaders.Arena.Position()
 
 	for index, laser := range invaders.Hero.Lasers {
 		_, y := laser.Position()
 		isEndOfArena := y == arenaY
 
-		if isEndOfArena {
+		if isEndOfArena || laser.HasHit {
 			invaders.Level.RemoveEntity(laser)
 			invaders.Hero.Lasers = append(invaders.Hero.Lasers[:index], invaders.Hero.Lasers[index+1:]...)
 		}
