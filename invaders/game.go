@@ -8,18 +8,23 @@ import (
 
 type Invaders struct {
 	*tl.Entity
-	Game         *tl.Game
-	Level        *tl.BaseLevel
-	Arena        *Arena
-	Hero         *Hero
-	AlienCluster *AlienCluster
+	Game               *tl.Game
+	Level              *tl.BaseLevel
+	Arena              *Arena
+	Hero               *Hero
+	AlienCluster       *AlienCluster
+	AlienLaserVelocity float64
+	TimeDelta          float64
+	RefreshSpeed       time.Duration
 }
 
 func NewGame() *Invaders {
 	invaders := Invaders{
-		Entity: tl.NewEntity(0, 0, 1, 1),
-		Game:   tl.NewGame(),
-		Level:  tl.NewBaseLevel(tl.Cell{Bg: tl.ColorBlack, Fg: tl.ColorWhite}),
+		Entity:             tl.NewEntity(0, 0, 1, 1),
+		Game:               tl.NewGame(),
+		Level:              tl.NewBaseLevel(tl.Cell{Bg: tl.ColorBlack, Fg: tl.ColorWhite}),
+		AlienLaserVelocity: 0.12,
+		RefreshSpeed:       20,
 	}
 
 	invaders.Game.Screen().SetFps(60)
@@ -71,44 +76,51 @@ func (invaders *Invaders) initAliens() {
 }
 
 func (invaders *Invaders) updatePositions() {
-	var refreshSpeed time.Duration = 20
-
 	for {
 		invaders.updateLaserPositions()
 		invaders.updateAlienClusterPosition()
 
-		time.Sleep(refreshSpeed * time.Millisecond)
+		time.Sleep(invaders.RefreshSpeed * time.Millisecond)
 	}
+}
+
+func (invaders *Invaders) updateAlienClusterPosition() {
+	invaders.AlienCluster.RemoveDeadAliensAndPrepareShoot(invaders.Level)
+	invaders.AlienCluster.UpdateAliensPositions(invaders.Game.Screen().TimeDelta(), invaders.Arena)
+	invaders.AlienCluster.Shoot(invaders.Game.Screen().TimeDelta())
 }
 
 func (invaders *Invaders) updateLaserPositions() {
 	utils.ShowLasersInfo(len(invaders.Hero.Lasers))
+	utils.ShowAlienLasersInfo(len(invaders.AlienCluster.Lasers))
 
-	for _, laser := range invaders.Hero.Lasers {
+	invaders.updateHeroLasers()
+	invaders.updateAlienLasers()
+	invaders.removeLasers()
+}
+
+func (invaders *Invaders) updateHeroLasers() {
+	invaders.UpdateLasers(invaders.Hero.Lasers)
+}
+
+func (invaders *Invaders) updateAlienLasers() {
+	invaders.TimeDelta += invaders.Game.Screen().TimeDelta()
+
+	if invaders.TimeDelta >= invaders.AlienLaserVelocity {
+		invaders.TimeDelta = 0
+		invaders.UpdateLasers(invaders.AlienCluster.Lasers)
+	}
+}
+
+func (invaders *Invaders) UpdateLasers(lasers []*Laser) {
+	for _, laser := range lasers {
 		if laser.IsNew {
 			invaders.renderNewLaser(laser)
 			continue
 		}
 
 		x, y := laser.Position()
-		laser.SetPosition(x, y-1)
-	}
-
-	invaders.removeLasers()
-}
-
-func (invaders *Invaders) updateAlienClusterPosition() {
-	invaders.removeDeadAliens()
-	invaders.AlienCluster.UpdateAliensPositions(invaders.Game.Screen().TimeDelta(), invaders.Arena)
-}
-
-func (invaders *Invaders) removeDeadAliens() {
-	for _, alienRow := range invaders.AlienCluster.Aliens {
-		for _, alien := range alienRow {
-			if alien.IsAlive == false {
-				invaders.Level.RemoveEntity(alien)
-			}
-		}
+		laser.SetPosition(x, y-laser.Direction)
 	}
 }
 
@@ -119,14 +131,26 @@ func (invaders *Invaders) renderNewLaser(laser *Laser) {
 
 func (invaders *Invaders) removeLasers() {
 	_, arenaY := invaders.Arena.Position()
+	_, arenaH := invaders.Arena.Size()
 
-	for index, laser := range invaders.Hero.Lasers {
+	upperLimit := arenaY
+	bottomLimit := arenaY + arenaH - 1
+
+	invaders.Hero.Lasers = invaders.removeLaserOf(invaders.Hero.Lasers, upperLimit)
+	invaders.AlienCluster.Lasers = invaders.removeLaserOf(invaders.AlienCluster.Lasers, bottomLimit)
+}
+
+func (invaders *Invaders) removeLaserOf(lasers []*Laser, arenaLimit int) []*Laser {
+
+	for index, laser := range lasers {
 		_, y := laser.Position()
-		isEndOfArena := y == arenaY
+		isEndOfArena := y == arenaLimit
 
 		if isEndOfArena || laser.HasHit {
 			invaders.Level.RemoveEntity(laser)
-			invaders.Hero.Lasers = append(invaders.Hero.Lasers[:index], invaders.Hero.Lasers[index+1:]...)
+			lasers = append(lasers[:index], lasers[index+1:]...)
 		}
 	}
+
+	return lasers
 }

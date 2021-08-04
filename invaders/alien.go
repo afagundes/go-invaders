@@ -65,7 +65,11 @@ func calcInitialPositionAndSpace(aliens [][]*Alien, arena *Arena) (int, int, int
 
 func (alien *Alien) Collide(collision tl.Physical) {
 	if _, ok := collision.(*Laser); ok {
-		alien.IsAlive = false
-		collision.(*Laser).HasHit = true
+		laser := collision.(*Laser)
+
+		if laser.IsFromHero {
+			alien.IsAlive = false
+			laser.HasHit = true
+		}
 	}
 }

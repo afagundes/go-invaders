@@ -4,10 +4,16 @@ import tl "github.com/JoelOtter/termloop"
 
 type Laser struct {
 	*tl.Rectangle
-	IsNew  bool
-	HasHit bool
+	Direction  int
+	IsFromHero bool
+	IsNew      bool
+	HasHit     bool
 }
 
-func NewLaser(heroGunPosition int, y int) *Laser {
-	return &Laser{Rectangle: tl.NewRectangle(heroGunPosition, y, 1, 1, tl.ColorRed), IsNew: true, HasHit: false}
+func NewHeroLaser(heroGunPosition int, y int) *Laser {
+	return &Laser{Rectangle: tl.NewRectangle(heroGunPosition, y, 1, 1, tl.ColorRed), Direction: 1, IsNew: true, HasHit: false, IsFromHero: true}
+}
+
+func NewAlienLaser(alienGunPosition int, y int) *Laser {
+	return &Laser{Rectangle: tl.NewRectangle(alienGunPosition, y, 1, 1, tl.ColorGreen), Direction: -1, IsNew: true, HasHit: false, IsFromHero: false}
 }

@@ -7,7 +7,7 @@ import (
 
 type Hero struct {
 	*tl.Entity
-	Arena *Arena
+	Arena  *Arena
 	Lasers []*Laser
 }
 
@@ -42,7 +42,7 @@ func (hero *Hero) Tick(event tl.Event) {
 				hero.SetPosition(x, y)
 			}
 		case tl.KeyArrowRight:
-			if x < hero.Arena.End - heroWidth - 1 {
+			if x < hero.Arena.End-heroWidth-1 {
 				x = x + 1
 				hero.SetPosition(x, y)
 			}
@@ -65,7 +65,7 @@ func (hero *Hero) shoot() {
 	heroGunPosition := x + (heroWidth-1)/2
 	distanceToHero := y - 1
 
-	laser := NewLaser(heroGunPosition, distanceToHero)
+	laser := NewHeroLaser(heroGunPosition, distanceToHero)
 	hero.Lasers = append(hero.Lasers, laser)
 }
 

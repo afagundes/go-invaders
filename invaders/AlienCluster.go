@@ -1,14 +1,20 @@
 package invaders
 
 import (
+	tl "github.com/JoelOtter/termloop"
 	"github.com/afagundes/go-invaders/invaders/utils"
+	"math/rand"
+	"time"
 )
 
 type AlienCluster struct {
 	Aliens                   [][]*Alien
+	Lasers                   []*Laser
 	TimeToMove               float64
+	TimeToShoot              float64
 	WaitingTime              float64
 	WaitingTimeToMoveNextRow float64
+	WaitingTimeToShoot       float64
 	CurrentRowMoving         int
 	Direction                int
 	MoveSize                 int
@@ -24,6 +30,7 @@ func NewAlienCluster() *AlienCluster {
 		TimeToMove:               0,
 		WaitingTime:              1,
 		WaitingTimeToMoveNextRow: 0.07,
+		WaitingTimeToShoot:       1.7,
 		CurrentRowMoving:         -1,
 		Direction:                3,
 		MoveSize:                 3,
@@ -133,4 +140,62 @@ func (alienCluster *AlienCluster) checkIfReachedEndOfArena(x int, w int, arena *
 		alienCluster.ReachedEndArena = true
 		alienCluster.IsMovingDown = true
 	}
+}
+
+func (alienCluster *AlienCluster) RemoveDeadAliensAndPrepareShoot(level *tl.BaseLevel) {
+	for _, alienRow := range alienCluster.Aliens {
+		for _, alien := range alienRow {
+			if alien.IsAlive == false {
+				level.RemoveEntity(alien)
+			}
+		}
+	}
+}
+
+func (alienCluster *AlienCluster) Shoot(timeDelta float64) {
+	alien := alienCluster.selectRandomAlien()
+
+	if alienCluster.canShoot(alien, timeDelta) {
+		x, y := alien.Position()
+		width, _ := alien.Size()
+		alienGunPosition := x + (width-1)/2
+		distanceToAlien := y + 2
+
+		laser := NewAlienLaser(alienGunPosition, distanceToAlien)
+		alienCluster.Lasers = append(alienCluster.Lasers, laser)
+	}
+}
+
+func (alienCluster *AlienCluster) canShoot(alien *Alien, timeDelta float64) bool {
+	alienCluster.TimeToShoot += timeDelta
+
+	if alien != nil && alienCluster.TimeToShoot >= alienCluster.WaitingTimeToShoot {
+		alienCluster.TimeToShoot = 0
+		return true
+	}
+
+	return false
+}
+
+func (alienCluster *AlienCluster) selectRandomAlien() *Alien {
+	var shooterAlien *Alien
+
+	rowSize := len(alienCluster.Aliens) - 1
+	col := alienCluster.selectRandomAlienColumn()
+
+	for row := rowSize; row >= 0; row-- {
+		alien := alienCluster.Aliens[row][col]
+
+		if alien.IsAlive {
+			shooterAlien = alien
+			break
+		}
+	}
+	return shooterAlien
+}
+
+func (alienCluster *AlienCluster) selectRandomAlienColumn() int {
+	rand.Seed(time.Now().UnixNano())
+	col := rand.Intn(len(alienCluster.Aliens[0]))
+	return col
 }
