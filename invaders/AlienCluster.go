@@ -142,14 +142,21 @@ func (alienCluster *AlienCluster) checkIfReachedEndOfArena(x int, w int, arena *
 	}
 }
 
-func (alienCluster *AlienCluster) RemoveDeadAliensAndPrepareShoot(level *tl.BaseLevel) {
+func (alienCluster *AlienCluster) RemoveDeadAliensAndGetPoints(level *tl.BaseLevel) int {
+	points := 0
+
 	for _, alienRow := range alienCluster.Aliens {
 		for _, alien := range alienRow {
-			if alien.IsAlive == false {
+			if alien.IsAlive == false && alien.IsRendered == true {
+				points += alien.Points
+				alien.IsRendered = false
+
 				level.RemoveEntity(alien)
 			}
 		}
 	}
+
+	return points
 }
 
 func (alienCluster *AlienCluster) Shoot(timeDelta float64) {

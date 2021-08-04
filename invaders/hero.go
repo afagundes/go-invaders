@@ -7,8 +7,10 @@ import (
 
 type Hero struct {
 	*tl.Entity
-	Arena  *Arena
-	Lasers []*Laser
+	Arena         *Arena
+	Lasers        []*Laser
+	ReloadingTime int
+	IsAlive       bool
 }
 
 func NewHero(arena *Arena) *Hero {
@@ -17,7 +19,7 @@ func NewHero(arena *Arena) *Hero {
 
 	utils.ShowHeroInfo(x, y)
 
-	return &Hero{Entity: tl.NewEntityFromCanvas(x, y, heroCanvas), Arena: arena}
+	return &Hero{Entity: tl.NewEntityFromCanvas(x, y, heroCanvas), Arena: arena, ReloadingTime: 15, IsAlive: true}
 }
 
 func setHeroPosition(arena *Arena, heroCanvas tl.Canvas) (int, int) {
@@ -31,6 +33,10 @@ func setHeroPosition(arena *Arena, heroCanvas tl.Canvas) (int, int) {
 }
 
 func (hero *Hero) Tick(event tl.Event) {
+	if hero.IsAlive == false {
+		return
+	}
+
 	if event.Type == tl.EventKey {
 		x, y := hero.Position()
 		heroWidth, _ := hero.Size()
@@ -70,14 +76,25 @@ func (hero *Hero) shoot() {
 }
 
 func (hero *Hero) isReloading(y int) bool {
-	distanceBetweenShots := 3
-
 	if len(hero.Lasers) > 0 {
 		lastLaser := hero.Lasers[len(hero.Lasers)-1]
-		if _, lastPosition := lastLaser.Position(); lastPosition >= y-distanceBetweenShots {
+		if _, lastPosition := lastLaser.Position(); lastPosition >= y-hero.ReloadingTime {
 			return true
 		}
 	}
 
 	return false
+}
+
+func (hero *Hero) Collide(collision tl.Physical) {
+	if _, ok := collision.(*Laser); ok {
+		laser := collision.(*Laser)
+
+		laser.HasHit = true
+		hero.IsAlive = false
+	}
+}
+
+func (hero *Hero) IsDead() bool {
+	return hero.IsAlive == false
 }

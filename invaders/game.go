@@ -11,11 +11,13 @@ type Invaders struct {
 	Game               *tl.Game
 	Level              *tl.BaseLevel
 	Arena              *Arena
+	Hud                *Hud
 	Hero               *Hero
 	AlienCluster       *AlienCluster
 	AlienLaserVelocity float64
 	TimeDelta          float64
 	RefreshSpeed       time.Duration
+	Score              int
 }
 
 func NewGame() *Invaders {
@@ -25,6 +27,7 @@ func NewGame() *Invaders {
 		Level:              tl.NewBaseLevel(tl.Cell{Bg: tl.ColorBlack, Fg: tl.ColorWhite}),
 		AlienLaserVelocity: 0.12,
 		RefreshSpeed:       20,
+		Score:              0,
 	}
 
 	invaders.Game.Screen().SetFps(60)
@@ -43,6 +46,7 @@ func (invaders *Invaders) Start() {
 
 func (invaders *Invaders) initializeGame() {
 	invaders.initArena()
+	invaders.initHud()
 	invaders.initHero()
 	invaders.initAliens()
 	invaders.updatePositions()
@@ -52,6 +56,10 @@ func (invaders *Invaders) initArena() {
 	screenWidth, screenHeight := invaders.getScreenSize()
 	invaders.Arena = newArena(screenWidth, screenHeight)
 	invaders.Level.AddEntity(invaders.Arena)
+}
+
+func (invaders *Invaders) initHud() {
+	invaders.Hud = NewHud(invaders.Arena, invaders.Level)
 }
 
 func (invaders *Invaders) getScreenSize() (int, int) {
@@ -77,17 +85,28 @@ func (invaders *Invaders) initAliens() {
 
 func (invaders *Invaders) updatePositions() {
 	for {
+		if invaders.Hero.IsDead() {
+			break
+		}
+
 		invaders.updateLaserPositions()
+		invaders.RemoveDeadAliensAndIncrementScore()
 		invaders.updateAlienClusterPosition()
+
+		invaders.Hud.UpdateScore(invaders.Score)
 
 		time.Sleep(invaders.RefreshSpeed * time.Millisecond)
 	}
 }
 
 func (invaders *Invaders) updateAlienClusterPosition() {
-	invaders.AlienCluster.RemoveDeadAliensAndPrepareShoot(invaders.Level)
 	invaders.AlienCluster.UpdateAliensPositions(invaders.Game.Screen().TimeDelta(), invaders.Arena)
 	invaders.AlienCluster.Shoot(invaders.Game.Screen().TimeDelta())
+}
+
+func (invaders *Invaders) RemoveDeadAliensAndIncrementScore() {
+	points := invaders.AlienCluster.RemoveDeadAliensAndGetPoints(invaders.Level)
+	invaders.addScore(points)
 }
 
 func (invaders *Invaders) updateLaserPositions() {
@@ -100,7 +119,7 @@ func (invaders *Invaders) updateLaserPositions() {
 }
 
 func (invaders *Invaders) updateHeroLasers() {
-	invaders.UpdateLasers(invaders.Hero.Lasers)
+	invaders.updateLasers(invaders.Hero.Lasers)
 }
 
 func (invaders *Invaders) updateAlienLasers() {
@@ -108,11 +127,11 @@ func (invaders *Invaders) updateAlienLasers() {
 
 	if invaders.TimeDelta >= invaders.AlienLaserVelocity {
 		invaders.TimeDelta = 0
-		invaders.UpdateLasers(invaders.AlienCluster.Lasers)
+		invaders.updateLasers(invaders.AlienCluster.Lasers)
 	}
 }
 
-func (invaders *Invaders) UpdateLasers(lasers []*Laser) {
+func (invaders *Invaders) updateLasers(lasers []*Laser) {
 	for _, laser := range lasers {
 		if laser.IsNew {
 			invaders.renderNewLaser(laser)
@@ -141,7 +160,6 @@ func (invaders *Invaders) removeLasers() {
 }
 
 func (invaders *Invaders) removeLaserOf(lasers []*Laser, arenaLimit int) []*Laser {
-
 	for index, laser := range lasers {
 		_, y := laser.Position()
 		isEndOfArena := y == arenaLimit
@@ -153,4 +171,8 @@ func (invaders *Invaders) removeLaserOf(lasers []*Laser, arenaLimit int) []*Lase
 	}
 
 	return lasers
+}
+
+func (invaders *Invaders) addScore(points int) {
+	invaders.Score += points
 }

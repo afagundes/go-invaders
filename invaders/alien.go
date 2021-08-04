@@ -6,20 +6,25 @@ import (
 
 type Alien struct {
 	*tl.Entity
-	IsAlive bool
+	IsAlive    bool
+	IsRendered bool
+	Points     int
 }
 
-type AlienType string
+type AlienType struct {
+	Source string
+	Points int
+}
 
-const (
-	Basic  AlienType = "invaders/files/alien_basic.txt"
-	Medium AlienType = "invaders/files/alien_medium.txt"
-	Strong AlienType = "invaders/files/alien_strong.txt"
+var (
+	Basic  = AlienType{Source: "invaders/files/alien_basic.txt", Points: 10}
+	Medium = AlienType{Source: "invaders/files/alien_medium.txt", Points: 20}
+	Strong = AlienType{Source: "invaders/files/alien_strong.txt", Points: 30}
 )
 
 func NewAlien(alienType AlienType) *Alien {
-	canvas := CreateCanvas(string(alienType))
-	return &Alien{Entity: tl.NewEntityFromCanvas(0, 0, canvas), IsAlive: true}
+	canvas := CreateCanvas(alienType.Source)
+	return &Alien{Entity: tl.NewEntityFromCanvas(0, 0, canvas), IsAlive: true, Points: alienType.Points}
 }
 
 func CreateAliensLine(alienType AlienType, lineSize int) []*Alien {
@@ -42,6 +47,8 @@ func SetPositionAndRenderAliens(aliens [][]*Alien, level *tl.BaseLevel, arena *A
 			y := initialY + height*(index+1) - 2
 
 			alien.SetPosition(x, y)
+			alien.IsRendered = true
+
 			level.AddEntity(alien)
 
 			x += space
@@ -68,8 +75,8 @@ func (alien *Alien) Collide(collision tl.Physical) {
 		laser := collision.(*Laser)
 
 		if laser.IsFromHero {
-			alien.IsAlive = false
 			laser.HasHit = true
+			alien.IsAlive = false
 		}
 	}
 }
