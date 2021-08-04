@@ -66,15 +66,7 @@ func (invaders *Invaders) initHero() {
 }
 
 func (invaders *Invaders) initAliens() {
-	lineSize := 13
-
 	invaders.AlienCluster = NewAlienCluster()
-	invaders.AlienCluster.Aliens = append(invaders.AlienCluster.Aliens, CreateAliensLine(Strong, lineSize))
-	invaders.AlienCluster.Aliens = append(invaders.AlienCluster.Aliens, CreateAliensLine(Medium, lineSize))
-	invaders.AlienCluster.Aliens = append(invaders.AlienCluster.Aliens, CreateAliensLine(Medium, lineSize))
-	invaders.AlienCluster.Aliens = append(invaders.AlienCluster.Aliens, CreateAliensLine(Basic, lineSize))
-	invaders.AlienCluster.Aliens = append(invaders.AlienCluster.Aliens, CreateAliensLine(Basic, lineSize))
-
 	SetPositionAndRenderAliens(invaders.AlienCluster.Aliens, invaders.Level, invaders.Arena)
 }
 
