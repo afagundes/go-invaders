@@ -18,8 +18,9 @@ type AlienCluster struct {
 	Direction                int
 	MoveSize                 int
 	IsMoving                 bool
-	ReachedEndArena          bool
 	IsMovingDown             bool
+	IsAllDead                bool
+	ReachedEndArena          bool
 }
 
 func NewAlienCluster() *AlienCluster {
@@ -140,6 +141,7 @@ func (alienCluster *AlienCluster) checkIfReachedEndOfArena(x int, w int, arena *
 }
 
 func (alienCluster *AlienCluster) RemoveDeadAliensAndGetPoints(level *tl.BaseLevel) int {
+	hasAtLeastOneAlive := false
 	points := 0
 
 	for _, alienRow := range alienCluster.Aliens {
@@ -150,8 +152,14 @@ func (alienCluster *AlienCluster) RemoveDeadAliensAndGetPoints(level *tl.BaseLev
 
 				level.RemoveEntity(alien)
 			}
+
+			if alien.IsAlive == true {
+				hasAtLeastOneAlive = true
+			}
 		}
 	}
+
+	alienCluster.IsAllDead = !hasAtLeastOneAlive
 
 	return points
 }
@@ -202,4 +210,8 @@ func (alienCluster *AlienCluster) selectRandomAlienColumn() int {
 	rand.Seed(time.Now().UnixNano())
 	col := rand.Intn(len(alienCluster.Aliens[0]))
 	return col
+}
+
+func (alienCluster *AlienCluster) IsAllAliensDead() bool {
+	return alienCluster.IsAllDead
 }

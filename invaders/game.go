@@ -86,8 +86,8 @@ func (invaders *Invaders) initGameOverZone() {
 
 func (invaders *Invaders) gameLoop() {
 	for {
-		if invaders.Hero.IsDead() {
-			invaders.Hero.animateHeroDeath(invaders.Level)
+		if invaders.Hero.IsDead() || invaders.AlienCluster.IsAllAliensDead() {
+			invaders.Hero.animateHeroEndGame(invaders.Level)
 			break
 		}
 
@@ -100,7 +100,13 @@ func (invaders *Invaders) gameLoop() {
 		time.Sleep(invaders.RefreshSpeed * time.Millisecond)
 	}
 
-	ShowGameOverScreen(invaders)
+	if invaders.Hero.IsDead() {
+		ShowGameOverScreen(invaders)
+	}
+
+	if invaders.AlienCluster.IsAllAliensDead() {
+		ShowVictoryScreen(invaders)
+	}
 }
 
 func (invaders *Invaders) updateScore() {

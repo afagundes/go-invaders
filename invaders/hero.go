@@ -95,7 +95,7 @@ func (hero *Hero) IsDead() bool {
 	return hero.IsAlive == false
 }
 
-func (hero *Hero) animateHeroDeath(level *tl.BaseLevel) {
+func (hero *Hero) animateHeroEndGame(level *tl.BaseLevel) {
 	for i := 0; i < 6; i++ {
 		if i%2 == 0 {
 			level.RemoveEntity(hero)
