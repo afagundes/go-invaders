@@ -1,6 +1,7 @@
 package invaders
 
 import (
+	_ "embed"
 	tl "github.com/JoelOtter/termloop"
 	"time"
 )
@@ -12,8 +13,11 @@ type Hero struct {
 	IsAlive bool
 }
 
+//go:embed files/hero.txt
+var heroBytes []byte
+
 func NewHero(arena *Arena) *Hero {
-	heroCanvas := CreateCanvas("invaders/files/hero.txt")
+	heroCanvas := CreateCanvas(heroBytes)
 	x, y := setHeroPosition(arena, heroCanvas)
 
 	return &Hero{Entity: tl.NewEntityFromCanvas(x, y, heroCanvas), Arena: arena, IsAlive: true}

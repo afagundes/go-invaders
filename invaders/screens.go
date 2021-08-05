@@ -1,8 +1,20 @@
 package invaders
 
 import (
+	_ "embed"
 	"fmt"
 	tl "github.com/JoelOtter/termloop"
+)
+
+var (
+	//go:embed files/title.txt
+	titleScreenFile []byte
+
+	//go:embed files/game_over.txt
+	gameOverScreenFile []byte
+
+	//go:embed files/victory.txt
+	victoryScreenFile []byte
 )
 
 func ShowTitleScreen(invaders *Invaders) {
@@ -52,22 +64,19 @@ func prepareScreen(invaders *Invaders) {
 }
 
 func showTitle(invaders *Invaders) {
-	filename := "invaders/files/title.txt"
-	showCanvas(invaders, filename)
+	showCanvas(invaders, titleScreenFile)
 }
 
 func showGameOver(invaders *Invaders) {
-	filename := "invaders/files/game_over.txt"
-	showCanvas(invaders, filename)
+	showCanvas(invaders, gameOverScreenFile)
 }
 
 func showVictory(invaders *Invaders) {
-	filename := "invaders/files/victory.txt"
-	showCanvas(invaders, filename)
+	showCanvas(invaders, victoryScreenFile)
 }
 
-func showCanvas(invaders *Invaders, filename string) {
-	canvas := CreateCanvas(filename)
+func showCanvas(invaders *Invaders, file []byte) {
+	canvas := CreateCanvas(file)
 
 	arenaX, arenaY := invaders.Arena.Position()
 	arenaW, arenaH := invaders.Arena.Size()

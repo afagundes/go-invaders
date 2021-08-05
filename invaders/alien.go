@@ -1,6 +1,7 @@
 package invaders
 
 import (
+	_ "embed"
 	tl "github.com/JoelOtter/termloop"
 )
 
@@ -12,14 +13,23 @@ type Alien struct {
 }
 
 type AlienType struct {
-	Source string
+	Source []byte
 	Points int
 }
 
 var (
-	Basic  = AlienType{Source: "invaders/files/alien_basic.txt", Points: 10}
-	Medium = AlienType{Source: "invaders/files/alien_medium.txt", Points: 20}
-	Strong = AlienType{Source: "invaders/files/alien_strong.txt", Points: 30}
+	//go:embed files/alien_basic.txt
+	alienBasicBytes []byte
+
+	//go:embed files/alien_medium.txt
+	alienMediumBytes []byte
+
+	//go:embed files/alien_strong.txt
+	alienStrongBytes []byte
+
+	Basic  = AlienType{Source: alienBasicBytes, Points: 10}
+	Medium = AlienType{Source: alienMediumBytes, Points: 20}
+	Strong = AlienType{Source: alienStrongBytes, Points: 30}
 )
 
 func NewAlien(alienType AlienType) *Alien {
