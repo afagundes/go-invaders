@@ -1,5 +1,16 @@
-# go-invaders
-A Space Invaders inspired game written in Go. Built with [Termloop](https://github.com/JoelOtter/termloop)
+# Go Invaders
+A Space Invaders inspired game written in Go. Built with [Termloop](https://github.com/JoelOtter/termloop).
+
+## Installation
+```
+go install github.com/afagundes/go-invaders
+$GOPATH/bin/go-invaders
+```
+
+## Controls
+Use the arrow keys to move the hero spaceship and space bar to shoot. Press backspace to quit.
+
+# Screenshots
 
 ![Image of title screen](https://github.com/afagundes/go-invaders/blob/main/images/title_screen.png)
 
