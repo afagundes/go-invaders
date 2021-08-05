@@ -3,7 +3,7 @@ A Space Invaders inspired game written in Go. Built with [Termloop](https://gith
 
 ## Installation
 ```
-go install github.com/afagundes/go-invaders
+go install github.com/afagundes/go-invaders@latest
 $GOPATH/bin/go-invaders
 ```
 
