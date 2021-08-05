@@ -9,17 +9,23 @@ func ShowTitleScreen(invaders *Invaders) {
 	prepareScreen(invaders)
 	showTitle(invaders)
 
-	w, h := invaders.Arena.Size()
-	text := tl.NewText(1, 1, fmt.Sprintf("w:%d h:%d", w, h), tl.ColorWhite, tl.ColorBlack)
-	invaders.Level.AddEntity(text)
-
-	if w < 100 || h < 37 {
+	if checkArenaSizeNotOk(invaders) {
 		invaders.ScreenSizeNotOK = true
 		showMaximizeScreen(invaders)
 		return
 	}
 
 	showPressToInit(invaders, 0)
+}
+
+func checkArenaSizeNotOk(invaders *Invaders) bool {
+	w, h := invaders.Arena.Size()
+
+	if w < 100 || h < 37 {
+		return true
+	}
+
+	return false
 }
 
 func ShowGameOverScreen(invaders *Invaders) {
