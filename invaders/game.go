@@ -192,6 +192,10 @@ func (invaders *Invaders) removeLaserOf(lasers []*Laser, arenaLimit int) []*Lase
 		if isEndOfArena || laser.HasHit {
 			invaders.Level.RemoveEntity(laser)
 
+			if laser.HitAlienLaser {
+				invaders.addScore(laser.Points)
+			}
+
 			if index < len(lasers) {
 				lasers = append(lasers[:index], lasers[index+1:]...)
 			}
