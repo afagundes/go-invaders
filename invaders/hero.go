@@ -7,17 +7,16 @@ import (
 
 type Hero struct {
 	*tl.Entity
-	Arena         *Arena
-	Lasers        []*Laser
-	ReloadingTime int
-	IsAlive       bool
+	Arena   *Arena
+	Lasers  []*Laser
+	IsAlive bool
 }
 
 func NewHero(arena *Arena) *Hero {
 	heroCanvas := CreateCanvas("invaders/files/hero.txt")
 	x, y := setHeroPosition(arena, heroCanvas)
 
-	return &Hero{Entity: tl.NewEntityFromCanvas(x, y, heroCanvas), Arena: arena, ReloadingTime: 15, IsAlive: true}
+	return &Hero{Entity: tl.NewEntityFromCanvas(x, y, heroCanvas), Arena: arena, IsAlive: true}
 }
 
 func setHeroPosition(arena *Arena, heroCanvas tl.Canvas) (int, int) {
@@ -59,7 +58,7 @@ func (hero *Hero) Tick(event tl.Event) {
 func (hero *Hero) shoot() {
 	x, y := hero.Position()
 
-	if hero.isReloading(y) {
+	if hero.isReloading() {
 		return
 	}
 
@@ -71,15 +70,8 @@ func (hero *Hero) shoot() {
 	hero.Lasers = append(hero.Lasers, laser)
 }
 
-func (hero *Hero) isReloading(y int) bool {
-	if len(hero.Lasers) > 0 {
-		lastLaser := hero.Lasers[len(hero.Lasers)-1]
-		if _, lastPosition := lastLaser.Position(); lastPosition >= y-hero.ReloadingTime {
-			return true
-		}
-	}
-
-	return false
+func (hero *Hero) isReloading() bool {
+	return len(hero.Lasers) > 0
 }
 
 func (hero *Hero) Collide(collision tl.Physical) {

@@ -26,7 +26,7 @@ func NewGame() *Invaders {
 		Entity:             tl.NewEntity(0, 0, 1, 1),
 		Game:               tl.NewGame(),
 		Level:              tl.NewBaseLevel(tl.Cell{Bg: tl.ColorBlack, Fg: tl.ColorWhite}),
-		AlienLaserVelocity: 0.12,
+		AlienLaserVelocity: 0.04,
 		RefreshSpeed:       20,
 		Score:              0,
 	}
@@ -129,7 +129,7 @@ func (invaders *Invaders) updateScore() {
 
 func (invaders *Invaders) updateAlienClusterPosition() {
 	invaders.AlienCluster.UpdateAliensPositions(invaders.Game.Screen().TimeDelta(), invaders.Arena)
-	invaders.AlienCluster.Shoot(invaders.Game.Screen().TimeDelta())
+	invaders.AlienCluster.Shoot()
 }
 
 func (invaders *Invaders) RemoveDeadAliensAndIncrementScore() {

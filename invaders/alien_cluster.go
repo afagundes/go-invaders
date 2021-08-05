@@ -10,10 +10,8 @@ type AlienCluster struct {
 	Aliens                   [][]*Alien
 	Lasers                   []*Laser
 	TimeToMove               float64
-	TimeToShoot              float64
 	WaitingTime              float64
 	WaitingTimeToMoveNextRow float64
-	WaitingTimeToShoot       float64
 	CurrentRowMoving         int
 	Direction                int
 	MoveSize                 int
@@ -30,7 +28,6 @@ func NewAlienCluster() *AlienCluster {
 		TimeToMove:               0,
 		WaitingTime:              1,
 		WaitingTimeToMoveNextRow: 0.07,
-		WaitingTimeToShoot:       1.7,
 		CurrentRowMoving:         -1,
 		Direction:                3,
 		MoveSize:                 3,
@@ -164,10 +161,14 @@ func (alienCluster *AlienCluster) RemoveDeadAliensAndGetPoints(level *tl.BaseLev
 	return points
 }
 
-func (alienCluster *AlienCluster) Shoot(timeDelta float64) {
-	alien := alienCluster.selectRandomAlien()
+func (alienCluster *AlienCluster) Shoot() {
+	if alienCluster.canShoot() {
+		alien := alienCluster.selectRandomAlien()
 
-	if alienCluster.canShoot(alien, timeDelta) {
+		if alien == nil {
+			return
+		}
+
 		x, y := alien.Position()
 		width, _ := alien.Size()
 		alienGunPosition := x + (width-1)/2
@@ -178,15 +179,8 @@ func (alienCluster *AlienCluster) Shoot(timeDelta float64) {
 	}
 }
 
-func (alienCluster *AlienCluster) canShoot(alien *Alien, timeDelta float64) bool {
-	alienCluster.TimeToShoot += timeDelta
-
-	if alien != nil && alienCluster.TimeToShoot >= alienCluster.WaitingTimeToShoot {
-		alienCluster.TimeToShoot = 0
-		return true
-	}
-
-	return false
+func (alienCluster *AlienCluster) canShoot() bool {
+	return len(alienCluster.Lasers) == 0
 }
 
 func (alienCluster *AlienCluster) selectRandomAlien() *Alien {
