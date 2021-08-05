@@ -19,6 +19,7 @@ type Invaders struct {
 	RefreshSpeed       time.Duration
 	Score              int
 	Started            bool
+	ScreenSizeNotOK    bool
 }
 
 func NewGame() *Invaders {
@@ -45,7 +46,7 @@ func (invaders *Invaders) Start() {
 }
 
 func (invaders *Invaders) Tick(event tl.Event) {
-	if invaders.Started == false && event.Type == tl.EventKey && event.Key == tl.KeyEnter {
+	if invaders.Started == false && invaders.ScreenSizeNotOK == false && event.Type == tl.EventKey && event.Key == tl.KeyEnter {
 		go invaders.initializeGame()
 	}
 }

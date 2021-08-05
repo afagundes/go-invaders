@@ -11,9 +11,23 @@ type Arena struct {
 	End  int
 }
 
+const (
+	ArenaMaxWidth  = 100
+	ArenaMaxHeight = 37
+)
+
 func newArena(screenWidth int, screenHeight int) *Arena {
 	width := utils.ValueMinusPercent(screenWidth, 0.40)
 	height := utils.ValueMinusPercent(screenHeight, 0.15)
+
+	if width > ArenaMaxWidth {
+		width = ArenaMaxWidth
+	}
+
+	if height > ArenaMaxHeight {
+		height = ArenaMaxHeight
+	}
+
 	centerX := screenWidth/2 - width/2
 	centerY := screenHeight/2 - height/2
 	init := centerX + 1

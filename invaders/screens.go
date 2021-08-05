@@ -8,6 +8,17 @@ import (
 func ShowTitleScreen(invaders *Invaders) {
 	prepareScreen(invaders)
 	showTitle(invaders)
+
+	w, h := invaders.Arena.Size()
+	text := tl.NewText(1, 1, fmt.Sprintf("w:%d h:%d", w, h), tl.ColorWhite, tl.ColorBlack)
+	invaders.Level.AddEntity(text)
+
+	if w < 100 || h < 37 {
+		invaders.ScreenSizeNotOK = true
+		showMaximizeScreen(invaders)
+		return
+	}
+
 	showPressToInit(invaders, 0)
 }
 
@@ -68,6 +79,10 @@ func showScore(invaders *Invaders) {
 
 func showPressToInit(invaders *Invaders, topPadding int) {
 	showCenterText("Press ENTER to start", topPadding, invaders)
+}
+
+func showMaximizeScreen(invaders *Invaders) {
+	showCenterText("Maximize the console and run the game again", 0, invaders)
 }
 
 func showCenterText(text string, topPadding int, invaders *Invaders) {
