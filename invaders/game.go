@@ -6,6 +6,7 @@ import (
 )
 
 type Invaders struct {
+	*tl.Entity
 	Game               *tl.Game
 	Level              *tl.BaseLevel
 	Arena              *Arena
@@ -17,10 +18,12 @@ type Invaders struct {
 	TimeDelta          float64
 	RefreshSpeed       time.Duration
 	Score              int
+	Started            bool
 }
 
 func NewGame() *Invaders {
 	invaders := Invaders{
+		Entity:             tl.NewEntity(0, 0, 1, 1),
 		Game:               tl.NewGame(),
 		Level:              tl.NewBaseLevel(tl.Cell{Bg: tl.ColorBlack, Fg: tl.ColorWhite}),
 		AlienLaserVelocity: 0.12,
@@ -29,19 +32,29 @@ func NewGame() *Invaders {
 	}
 
 	invaders.Game.Screen().SetFps(60)
+	invaders.Game.SetEndKey(tl.KeyBackspace)
 	invaders.Game.Screen().SetLevel(invaders.Level)
+	invaders.Level.AddEntity(&invaders)
 
 	return &invaders
 }
 
 func (invaders *Invaders) Start() {
-	go invaders.initializeGame()
+	go ShowTitleScreen(invaders)
 	invaders.Game.Start()
 }
 
+func (invaders *Invaders) Tick(event tl.Event) {
+	if invaders.Started == false && event.Type == tl.EventKey && event.Key == tl.KeyEnter {
+		go invaders.initializeGame()
+	}
+}
+
 func (invaders *Invaders) initializeGame() {
-	invaders.initArena()
-	invaders.initHud()
+	prepareScreen(invaders)
+
+	invaders.Started = true
+
 	invaders.initHero()
 	invaders.initAliens()
 	invaders.initGameOverZone()
@@ -88,6 +101,7 @@ func (invaders *Invaders) gameLoop() {
 	for {
 		if invaders.Hero.IsDead() || invaders.AlienCluster.IsAllAliensDead() {
 			invaders.Hero.animateHeroEndGame(invaders.Level)
+			invaders.Started = false
 			break
 		}
 
