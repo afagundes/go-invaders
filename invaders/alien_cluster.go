@@ -121,7 +121,10 @@ func (alienCluster *AlienCluster) moveSideways(arena *Arena) {
 		x = x + alienCluster.Direction
 
 		alien.SetPosition(x, y)
-		alienCluster.checkIfReachedEndOfArena(x, w, arena)
+
+		if alien.IsAlive {
+			alienCluster.checkIfReachedEndOfArena(x, w, arena)
+		}
 	}
 }
 
