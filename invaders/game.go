@@ -120,7 +120,7 @@ func (invaders *Invaders) gameLoop() {
 	}
 
 	if invaders.AlienCluster.IsAllAliensDead() {
-		ShowVictoryScreen(invaders)
+		invaders.initializeGame()
 	}
 }
 

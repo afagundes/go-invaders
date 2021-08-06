@@ -12,9 +12,6 @@ var (
 
 	//go:embed files/game_over.txt
 	gameOverScreenFile []byte
-
-	//go:embed files/victory.txt
-	victoryScreenFile []byte
 )
 
 func ShowTitleScreen(invaders *Invaders) {
@@ -47,13 +44,6 @@ func ShowGameOverScreen(invaders *Invaders) {
 	showPressToInit(invaders, 2)
 }
 
-func ShowVictoryScreen(invaders *Invaders) {
-	prepareScreen(invaders)
-	showVictory(invaders)
-	showScore(invaders)
-	showPressToInit(invaders, 2)
-}
-
 func prepareScreen(invaders *Invaders) {
 	invaders.Level = tl.NewBaseLevel(tl.Cell{Bg: tl.ColorBlack, Fg: tl.ColorWhite})
 	invaders.Game.Screen().SetLevel(invaders.Level)
@@ -69,10 +59,6 @@ func showTitle(invaders *Invaders) {
 
 func showGameOver(invaders *Invaders) {
 	showCanvas(invaders, gameOverScreenFile)
-}
-
-func showVictory(invaders *Invaders) {
-	showCanvas(invaders, victoryScreenFile)
 }
 
 func showCanvas(invaders *Invaders, file []byte) {
