@@ -1,8 +1,11 @@
 module github.com/afagundes/go-invaders
 
-go 1.16
+go 1.23
+
+require github.com/JoelOtter/termloop v0.0.0-20210806173944-5f7c38744afb
 
 require (
-	github.com/JoelOtter/termloop v0.0.0-20201118115657-7fa23b4da654
+	github.com/mattn/go-runewidth v0.0.16 // indirect
 	github.com/nsf/termbox-go v1.1.1 // indirect
+	github.com/rivo/uniseg v0.4.7 // indirect
 )
