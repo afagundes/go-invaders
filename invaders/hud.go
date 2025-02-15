@@ -12,7 +12,7 @@ type Hud struct {
 }
 
 func NewHud(arena *Arena, level *tl.BaseLevel) *Hud {
-	hud := Hud{Title: "Go Invaders", PressToQuit: "Press BACKSPACE to quit"}
+	hud := Hud{Title: "Go Invaders", PressToQuit: "Press CTRL+C to quit"}
 	hud.drawTitle(arena, level)
 	hud.drawPressToQuit(arena, level)
 	hud.drawScore(arena, level)

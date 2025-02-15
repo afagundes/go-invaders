@@ -33,7 +33,6 @@ func NewGame() *Invaders {
 	}
 
 	invaders.Game.Screen().SetFps(60)
-	invaders.Game.SetEndKey(tl.KeyBackspace)
 	invaders.Game.Screen().SetLevel(invaders.Level)
 	invaders.Level.AddEntity(&invaders)
 
